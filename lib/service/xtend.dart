@@ -45,20 +45,6 @@ class Xtend {
     _capsLockSubscription?.cancel();
   }
 
-  void _listenToCapsLock() {
-    if (_capsLockSubscription != null) {
-      return;
-    }
-    _capsLockSubscription = user32Api.getCapsLockStream().listen(
-      _updateCapsLock,
-    );
-  }
-
-  void _quitListeningToCapsLock() {
-    _capsLockSubscription?.cancel();
-    _capsLockSubscription = null;
-  }
-
   void _executeKey(VirtualKeyEvent keyEvent) {
     KeyboardKey key = keyEvent.key;
     if (key is TextKey) {
@@ -89,10 +75,6 @@ class Xtend {
     }
   }
 
-  void _updateCapsLock(bool value) {
-    keyboardController.capsLock(value);
-  }
-
   Future<void> _updateState(Gamepad? gamepad) async {
     await _handleXtendMode(gamepad);
     if (_prevGamepad == gamepad) {
@@ -107,7 +89,8 @@ class Xtend {
   }
 
   int? _zeroToTenRangeNullable(int? value) =>
-      _nullableTransfrom(value, _zeroToTenRange);
+      _nullableMap(value, _zeroToTenRange);
+
   int _zeroToTenRange(int value) => value ~/ 3000;
 
   Future<void> _handleXtendMode(Gamepad? gamepad) async {
@@ -130,6 +113,24 @@ class Xtend {
         // Do nothing
         break;
     }
+  }
+
+  void _listenToCapsLock() {
+    if (_capsLockSubscription != null) {
+      return;
+    }
+    _capsLockSubscription = user32Api.getCapsLockStream().listen(
+      _updateCapsLock,
+    );
+  }
+
+  void _updateCapsLock(bool value) {
+    keyboardController.capsLock(value);
+  }
+
+  void _quitListeningToCapsLock() {
+    _capsLockSubscription?.cancel();
+    _capsLockSubscription = null;
   }
 
   void _handleMouseMode(Gamepad gamepad) {
@@ -202,21 +203,8 @@ class Xtend {
     _simulateAltTab(gamepad);
   }
 
-  void _simulateAltTab(Gamepad gamepad) {
-    _mapToKeyboard(
-      _prevGamepad?.buttons.leftShoulder,
-      gamepad.buttons.leftShoulder,
-      KeyboardEvent.alt,
-    );
-    _mapToKeyboard(
-      _prevGamepad?.buttons.rightShoulder,
-      gamepad.buttons.rightShoulder,
-      KeyboardEvent.tab,
-    );
-  }
-
   void _simulateKeyboardNavigation(Gamepad gamepad) {
-    const int deadzone = 2;
+    const int deadZone = 2;
 
     //normalize values
     int x = _zeroToTenRange(gamepad.leftThumbX);
@@ -224,11 +212,11 @@ class Xtend {
     int? prevX = _prevLeftThumbX;
     int? prevY = _prevLeftThumbY;
 
-    //implement deadzone
-    x = _deadzoned(x, deadzone);
-    y = _deadzoned(y, deadzone);
-    prevX = _nullableDeadzoned(prevX, deadzone);
-    prevY = _nullableDeadzoned(prevY, deadzone);
+    //implement deadZone
+    x = _deadZoned(x, deadZone);
+    y = _deadZoned(y, deadZone);
+    prevX = _nullableDeadZoned(prevX, deadZone);
+    prevY = _nullableDeadZoned(prevY, deadZone);
     if ((prevX == x && prevY == y)) {
       return;
     }
@@ -239,10 +227,10 @@ class Xtend {
     bool left = x < 0;
     bool right = x > 0;
 
-    bool? prevUp = _nullableTransfrom(prevY, (prevY) => prevY > 0);
-    bool? prevDown = _nullableTransfrom(prevY, (prevY) => prevY < 0);
-    bool? prevLeft = _nullableTransfrom(prevX, (prevX) => prevX < 0);
-    bool? prevRight = _nullableTransfrom(prevX, (prevX) => prevX > 0);
+    bool? prevUp = _nullableMap(prevY, (prevY) => prevY > 0);
+    bool? prevDown = _nullableMap(prevY, (prevY) => prevY < 0);
+    bool? prevLeft = _nullableMap(prevX, (prevX) => prevX < 0);
+    bool? prevRight = _nullableMap(prevX, (prevX) => prevX > 0);
 
     //allow detection of keyUp state
     if (prevY != null && prevX != null) {
@@ -264,41 +252,18 @@ class Xtend {
     }
   }
 
-  int _deadzoned(int value, int deadzone) =>
-      value > deadzone
-          ? value - deadzone
-          : value < -deadzone
-          ? value + deadzone
+  int _deadZoned(int value, int deadZone) =>
+      value > deadZone
+          ? value - deadZone
+          : value < -deadZone
+          ? value + deadZone
           : 0;
 
-  int? _nullableDeadzoned(int? value, int deadzone) =>
-      value == null ? null : _deadzoned(value, deadzone);
+  int? _nullableDeadZoned(int? value, int deadZone) =>
+      _nullableMap(value, (int nonNull) => _deadZoned(nonNull, deadZone));
 
-  T? _nullableTransfrom<T, G>(G? value, T Function(G) transform) =>
+  T? _nullableMap<T, G>(G? value, T Function(G nonNull) transform) =>
       value == null ? null : transform(value);
-
-  void _simulateArrowKeys(Gamepad gamepad) {
-    _mapToKeyboard(
-      _prevGamepad?.buttons.dPadUp,
-      gamepad.buttons.dPadUp,
-      KeyboardEvent.up,
-    );
-    _mapToKeyboard(
-      _prevGamepad?.buttons.dPadDown,
-      gamepad.buttons.dPadDown,
-      KeyboardEvent.down,
-    );
-    _mapToKeyboard(
-      _prevGamepad?.buttons.dPadLeft,
-      gamepad.buttons.dPadLeft,
-      KeyboardEvent.left,
-    );
-    _mapToKeyboard(
-      _prevGamepad?.buttons.dPadRight,
-      gamepad.buttons.dPadRight,
-      KeyboardEvent.right,
-    );
-  }
 
   void _simulateKeyboardShortcuts(Gamepad gamepad) {
     _mapToControllerAction(
@@ -323,21 +288,40 @@ class Xtend {
     );
   }
 
-  void _updateXtendMode(Gamepad? gamepad) {
-    if (gamepad == null) {
-      _xtendMode = XtendMode.none;
-    } else if (_prevGamepad == null ||
-        _didClickTwoButtons(
-          _prevGamepad?.buttons.start,
-          gamepad.buttons.start,
-          _prevGamepad?.buttons.back,
-          gamepad.buttons.back,
-        )) {
-      _xtendMode = _nextXtendMode();
-    } else {
-      return;
-    }
-    _modeStreamController.add(_xtendMode);
+  void _simulateArrowKeys(Gamepad gamepad) {
+    _mapToKeyboard(
+      _prevGamepad?.buttons.dPadUp,
+      gamepad.buttons.dPadUp,
+      KeyboardEvent.up,
+    );
+    _mapToKeyboard(
+      _prevGamepad?.buttons.dPadDown,
+      gamepad.buttons.dPadDown,
+      KeyboardEvent.down,
+    );
+    _mapToKeyboard(
+      _prevGamepad?.buttons.dPadLeft,
+      gamepad.buttons.dPadLeft,
+      KeyboardEvent.left,
+    );
+    _mapToKeyboard(
+      _prevGamepad?.buttons.dPadRight,
+      gamepad.buttons.dPadRight,
+      KeyboardEvent.right,
+    );
+  }
+
+  void _simulateAltTab(Gamepad gamepad) {
+    _mapToKeyboard(
+      _prevGamepad?.buttons.leftShoulder,
+      gamepad.buttons.leftShoulder,
+      KeyboardEvent.alt,
+    );
+    _mapToKeyboard(
+      _prevGamepad?.buttons.rightShoulder,
+      gamepad.buttons.rightShoulder,
+      KeyboardEvent.tab,
+    );
   }
 
   void _mapToControllerAction(
@@ -345,13 +329,12 @@ class Xtend {
     bool button,
     void Function(KeyboardKeyEvent keyEvent) action,
   ) {
-    if (prevButton != button) {
-      if (button) {
-        action(KeyboardKeyEvent.down);
-      } else if (prevButton != null) {
-        action(KeyboardKeyEvent.up);
-      }
-    }
+    _mapControllerButtonToAction(
+      prevButton,
+      button,
+      () => action(KeyboardKeyEvent.down),
+      () => action(KeyboardKeyEvent.up),
+    );
   }
 
   void _mapToMouse(
@@ -360,13 +343,12 @@ class Xtend {
     MouseEvent mouseEventDown,
     MouseEvent mouseEventUp,
   ) {
-    if (prevButton != button) {
-      if (button) {
-        user32Api.simulateMouseEvent(mouseEventDown);
-      } else if (prevButton != null) {
-        user32Api.simulateMouseEvent(mouseEventUp);
-      }
-    }
+    _mapControllerButtonToAction(
+      prevButton,
+      button,
+      () => user32Api.simulateMouseEvent(mouseEventDown),
+      () => user32Api.simulateMouseEvent(mouseEventUp),
+    );
   }
 
   void _mapToKeyboard(
@@ -374,26 +356,51 @@ class Xtend {
     bool button,
     KeyboardEvent keyboardEvent,
   ) {
+    _mapControllerButtonToAction(
+      prevButton,
+      button,
+      () => user32Api.simulateKeyboardEvent(
+        keyboardEvent: keyboardEvent,
+        keyEvent: KeyboardKeyEvent.down,
+      ),
+      () => user32Api.simulateKeyboardEvent(
+        keyboardEvent: keyboardEvent,
+        keyEvent: KeyboardKeyEvent.up,
+      ),
+    );
+  }
+
+  void _mapControllerButtonToAction(
+    bool? prevButton,
+    bool button,
+    void Function() onDown,
+    void Function() onUp,
+  ) {
     if (prevButton != button) {
       if (button) {
-        user32Api.simulateKeyboardEvent(
-          keyboardEvent: keyboardEvent,
-          keyEvent: KeyboardKeyEvent.down,
-        );
+        onDown();
       } else if (prevButton != null) {
-        user32Api.simulateKeyboardEvent(
-          keyboardEvent: keyboardEvent,
-          keyEvent: KeyboardKeyEvent.up,
-        );
+        onUp();
       }
     }
   }
 
-  bool _didClickTwoButtons(bool? fromA, bool toA, bool? fromB, bool toB) {
-    return (fromA == null || fromB == null
-            ? true
-            : (fromA != toA || fromB != toB)) &&
-        (toA && toB);
+  void _updateXtendMode(Gamepad? gamepad) {
+    if (gamepad == null) {
+      _xtendMode = XtendMode.none;
+    } else if (_prevGamepad == null ||
+        _didClickChangeModeKeyCombination(gamepad)) {
+      _xtendMode = _nextXtendMode();
+    } else {
+      return;
+    }
+    _modeStreamController.add(_xtendMode);
+  }
+
+  bool _didClickChangeModeKeyCombination(Gamepad gamepad) {
+    return (_prevGamepad!.buttons.start != gamepad.buttons.start ||
+            _prevGamepad!.buttons.back != gamepad.buttons.back) &&
+        (gamepad.buttons.start && gamepad.buttons.back);
   }
 
   XtendMode _nextXtendMode() {

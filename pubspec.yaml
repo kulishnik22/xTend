@@ -1,0 +1,25 @@
+name: xtend
+description: "Let's you control your Windows PC using Xbox controller"
+publish_to: "none"
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  equatable: ^2.0.7
+  ffi: ^2.1.3
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.17
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/

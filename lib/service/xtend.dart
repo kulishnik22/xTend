@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:xtend/data/user_32/model/keyboard_input.dart';
-import 'package:xtend/data/user_32/model/mouse_input.dart';
+import 'package:xtend/data/user_32/model/keyboard_event.dart';
+import 'package:xtend/data/user_32/model/input/mouse_input.dart';
 import 'package:xtend/data/user_32/model/mouse_position.dart';
 import 'package:xtend/data/user_32/user_32_api.dart';
 import 'package:xtend/data/xinput/gamepad_service.dart';
@@ -10,14 +10,13 @@ import 'package:xtend/keyboard/keyboard_controller.dart';
 import 'package:xtend/keyboard/keyboard_layout.dart';
 
 class Xtend {
-  Xtend({
-    required this.gamepadService,
-    required this.user32Api,
-    required this.keyboardController,
-  }) : _modeStreamController = StreamController.broadcast(),
-       _xtendMode = XtendMode.none;
-  final GamepadService gamepadService;
-  final User32Api user32Api;
+  Xtend({required this.keyboardController})
+    : _gamepadService = GamepadService(),
+      _user32Api = User32Api(),
+      _modeStreamController = StreamController.broadcast(),
+      _xtendMode = XtendMode.none;
+  final GamepadService _gamepadService;
+  final User32Api _user32Api;
   final KeyboardController keyboardController;
 
   final StreamController<XtendMode> _modeStreamController;
@@ -31,24 +30,23 @@ class Xtend {
 
   Stream<XtendMode> get modeStream => _modeStreamController.stream;
 
-  Future<void> start() async {
-    await gamepadService.listen();
+  Future<void> initialize() async {
+    await _gamepadService.start();
     keyboardController.onKey.forEach(_executeKey);
-    gamepadService.stateStream.forEach(_updateState);
+    _gamepadService.stateStream.forEach(_updateState);
   }
 
   Future<void> dispose() async {
-    await gamepadService.stop();
-    user32Api.dispose();
-    await keyboardController.dispose();
+    await _gamepadService.stop();
+    _user32Api.dispose();
     await _modeStreamController.close();
     _capsLockSubscription?.cancel();
   }
 
   void _executeKey(VirtualKeyEvent keyEvent) {
-    KeyboardKey key = keyEvent.key;
+    VirtualKeyboardKey key = keyEvent.key;
     if (key is TextKey) {
-      user32Api.simulateCharacter(
+      _user32Api.simulateCharacter(
         char: key.value.codeUnitAt(0),
         isCapsLockActive: keyboardController.capsLockState.value,
         keyEvent: keyEvent.keyEvent,
@@ -56,18 +54,18 @@ class Xtend {
     }
     if (key is FunctionalKey) {
       if (key.value == FunctionalKeyType.capsLock) {
-        user32Api.simulateKeyboardEvent(
+        _user32Api.simulateKeyboardEvent(
           keyboardEvent: KeyboardEvent.capital,
           keyEvent: keyEvent.keyEvent,
           repeatOnKeyDown: false,
         );
       } else if (key.value == FunctionalKeyType.backspace) {
-        user32Api.simulateKeyboardEvent(
+        _user32Api.simulateKeyboardEvent(
           keyboardEvent: KeyboardEvent.back,
           keyEvent: keyEvent.keyEvent,
         );
       } else if (key.value == FunctionalKeyType.enter) {
-        user32Api.simulateKeyboardEvent(
+        _user32Api.simulateKeyboardEvent(
           keyboardEvent: KeyboardEvent.enter,
           keyEvent: keyEvent.keyEvent,
         );
@@ -119,13 +117,13 @@ class Xtend {
     if (_capsLockSubscription != null) {
       return;
     }
-    _capsLockSubscription = user32Api.getCapsLockStream().listen(
+    _capsLockSubscription = _user32Api.getCapsLockStream().listen(
       _updateCapsLock,
     );
   }
 
   void _updateCapsLock(bool value) {
-    keyboardController.capsLock(value);
+    keyboardController.setCapsLock(value);
   }
 
   void _quitListeningToCapsLock() {
@@ -149,11 +147,11 @@ class Xtend {
     }
     int xModifier = x * (math.pow(x, 2) / 60 + 1).toInt();
     int yModifier = y * (math.pow(y, 2) / 60 + 1).toInt();
-    MousePosition? mousePosition = user32Api.getCursorPosition();
+    MousePosition? mousePosition = _user32Api.getCursorPosition();
     if (mousePosition == null) {
       return;
     }
-    user32Api.setCursorPosition(
+    _user32Api.setCursorPosition(
       mousePosition.x + xModifier,
       mousePosition.y - yModifier,
     );
@@ -165,7 +163,7 @@ class Xtend {
     if (_prevRightThumbX == x && _prevRightThumbY == y && (x == 0 && y == 0)) {
       return;
     }
-    user32Api.simulateScroll(y, x);
+    _user32Api.simulateScroll(y, x);
   }
 
   void _simulateMouseButtons(Gamepad gamepad) {
@@ -346,8 +344,8 @@ class Xtend {
     _mapControllerButtonToAction(
       prevButton,
       button,
-      () => user32Api.simulateMouseEvent(mouseEventDown),
-      () => user32Api.simulateMouseEvent(mouseEventUp),
+      () => _user32Api.simulateMouseEvent(mouseEventDown),
+      () => _user32Api.simulateMouseEvent(mouseEventUp),
     );
   }
 
@@ -359,11 +357,11 @@ class Xtend {
     _mapControllerButtonToAction(
       prevButton,
       button,
-      () => user32Api.simulateKeyboardEvent(
+      () => _user32Api.simulateKeyboardEvent(
         keyboardEvent: keyboardEvent,
         keyEvent: KeyboardKeyEvent.down,
       ),
-      () => user32Api.simulateKeyboardEvent(
+      () => _user32Api.simulateKeyboardEvent(
         keyboardEvent: keyboardEvent,
         keyEvent: KeyboardKeyEvent.up,
       ),

@@ -128,7 +128,7 @@ class _KeyboardState extends State<Keyboard> {
   Widget buildRow(KeyRow row, int rowIndex) {
     int keyIndex = 0;
     List<Widget> children = [];
-    for (KeyboardKey key in row.keys) {
+    for (VirtualKeyboardKey key in row.keys) {
       if (key is VoidKey) {
         children.add(buildKey(key));
         continue;
@@ -139,7 +139,7 @@ class _KeyboardState extends State<Keyboard> {
     return Row(children: children);
   }
 
-  Widget buildKey(KeyboardKey key, [KeyboardCursor? keyPosition]) {
+  Widget buildKey(VirtualKeyboardKey key, [KeyboardCursor? keyPosition]) {
     return SizedBox(
       width: keySize.width * key.width,
       height: keySize.height,
@@ -150,7 +150,7 @@ class _KeyboardState extends State<Keyboard> {
     );
   }
 
-  Widget buildKeyCap(KeyboardKey key, KeyboardCursor? keyPosition) {
+  Widget buildKeyCap(VirtualKeyboardKey key, KeyboardCursor? keyPosition) {
     switch (key) {
       case VoidKey():
         return buildVoidKeyCap();

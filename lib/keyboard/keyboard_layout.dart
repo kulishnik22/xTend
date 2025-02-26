@@ -128,7 +128,7 @@ class KeyboardLayout extends Equatable {
   final int columnsCount;
   final KeyboardCursor initialCursor;
 
-  KeyboardCursor? findFirst(bool Function(KeyboardKey) test) {
+  KeyboardCursor? findFirst(bool Function(VirtualKeyboardKey) test) {
     for (int y = 0; y < rows.length; y++) {
       KeyRow row = rows[y];
       int x = row.findFirst(test);
@@ -165,9 +165,9 @@ class KeyRow extends Equatable {
         const TextKey(value: '8'),
         const TextKey(value: '9'),
       ];
-  final List<KeyboardKey> keys;
+  final List<VirtualKeyboardKey> keys;
 
-  int findFirst(bool Function(KeyboardKey) test) {
+  int findFirst(bool Function(VirtualKeyboardKey) test) {
     return keys.where((key) => key is! VoidKey).toList().indexWhere(test);
   }
 
@@ -175,15 +175,15 @@ class KeyRow extends Equatable {
   List<Object?> get props => [keys];
 }
 
-sealed class KeyboardKey<T> extends Equatable {
-  const KeyboardKey();
+sealed class VirtualKeyboardKey<T> extends Equatable {
+  const VirtualKeyboardKey();
   double get width;
   T get value;
   @override
   List<Object?> get props => [width, value];
 }
 
-class VoidKey extends KeyboardKey<void> {
+class VoidKey extends VirtualKeyboardKey<void> {
   const VoidKey([this.width = 1]);
 
   @override
@@ -192,7 +192,7 @@ class VoidKey extends KeyboardKey<void> {
   final void value = null;
 }
 
-class TextKey extends KeyboardKey<String> {
+class TextKey extends VirtualKeyboardKey<String> {
   const TextKey({required this.value, String? capsLockVariant, this.width = 1})
     : capsLockVariant = capsLockVariant ?? value;
   @override
@@ -206,7 +206,7 @@ class TextKey extends KeyboardKey<String> {
   List<Object?> get props => [width, value, capsLockVariant];
 }
 
-class RedirectKey extends KeyboardKey<KeyboardLayoutType> {
+class RedirectKey extends VirtualKeyboardKey<KeyboardLayoutType> {
   const RedirectKey(this.value, [this.width = 1.5]);
   @override
   final KeyboardLayoutType value;
@@ -217,7 +217,7 @@ class RedirectKey extends KeyboardKey<KeyboardLayoutType> {
 
 enum FunctionalKeyType { backspace, enter, capsLock }
 
-class FunctionalKey extends KeyboardKey<FunctionalKeyType> {
+class FunctionalKey extends VirtualKeyboardKey<FunctionalKeyType> {
   const FunctionalKey(this.value, [this.width = 1.5]);
   @override
   final FunctionalKeyType value;

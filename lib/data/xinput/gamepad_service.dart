@@ -17,7 +17,7 @@ class GamepadService {
     (state) => state == null ? null : Gamepad.fromJson(state),
   );
 
-  Future<void> listen() async {
+  Future<void> start() async {
     _stateReceivePort = ReceivePort();
     _stateStream = _stateReceivePort!.asBroadcastStream();
     _isolate = await Isolate.spawn(_entryPoint, {

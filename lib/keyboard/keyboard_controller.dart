@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:xtend/data/user_32/model/keyboard_input.dart';
+import 'package:xtend/data/user_32/model/keyboard_event.dart';
 import 'package:xtend/keyboard/keyboard_layout.dart';
 
 class KeyboardCursor extends Equatable {
@@ -16,7 +16,7 @@ class KeyboardCursor extends Equatable {
 
 class VirtualKeyEvent extends Equatable {
   const VirtualKeyEvent(this.key, this.keyEvent);
-  final KeyboardKey key;
+  final VirtualKeyboardKey key;
   final KeyboardKeyEvent keyEvent;
 
   @override
@@ -152,7 +152,7 @@ class KeyboardController {
   }
 
   void clickAtCursor(KeyboardKeyEvent keyEvent) {
-    KeyboardKey key = _getKeyAtCursor();
+    VirtualKeyboardKey key = _getKeyAtCursor();
     if (key is RedirectKey) {
       redirect(key.value);
       return;
@@ -160,13 +160,13 @@ class KeyboardController {
     _pressKey(key, keyEvent, cursorPosition.value);
   }
 
-  KeyboardKey<dynamic> _getKeyAtCursor() {
+  VirtualKeyboardKey<dynamic> _getKeyAtCursor() {
     return layout.value.rows[cursorPosition.value.y].keys
         .where((key) => key is! VoidKey)
         .elementAt(cursorPosition.value.x);
   }
 
-  void capsLock(bool value) {
+  void setCapsLock(bool value) {
     capsLockState.value = value;
   }
 
@@ -191,7 +191,10 @@ class KeyboardController {
     );
   }
 
-  void _pressKeyAndFindPosition(KeyboardKey key, KeyboardKeyEvent keyEvent) {
+  void _pressKeyAndFindPosition(
+    VirtualKeyboardKey key,
+    KeyboardKeyEvent keyEvent,
+  ) {
     _pressKey(
       key,
       keyEvent,
@@ -200,7 +203,7 @@ class KeyboardController {
   }
 
   void _pressKey(
-    KeyboardKey key,
+    VirtualKeyboardKey key,
     KeyboardKeyEvent keyEvent, [
     KeyboardCursor? position,
   ]) {

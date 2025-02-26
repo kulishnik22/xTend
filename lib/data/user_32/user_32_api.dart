@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
-import 'package:xtend/data/user_32/model/keyboard_input.dart';
-import 'package:xtend/data/user_32/model/mouse_input.dart';
+import 'package:xtend/data/user_32/model/input/input.dart';
+import 'package:xtend/data/user_32/model/keyboard_event.dart';
+import 'package:xtend/data/user_32/model/input/keyboard_input.dart';
+import 'package:xtend/data/user_32/model/input/mouse_input.dart';
 import 'package:xtend/data/user_32/model/mouse_position.dart';
-import 'package:xtend/data/user_32/model/point.dart';
+import 'package:xtend/data/user_32/model/input/point.dart';
 
 typedef GetCursorPosNative = Int32 Function(Pointer<POINT>);
 typedef GetCursorPosDart = int Function(Pointer<POINT>);
@@ -23,17 +25,6 @@ typedef GetKeyStateDart = int Function(int);
 
 typedef VkKeyScanNative = Int16 Function(Uint16 ch);
 typedef VkKeyScanDart = int Function(int ch);
-
-final class InputUnion extends Union {
-  external MOUSEINPUT mi;
-  external KEYBDINPUT ki;
-}
-
-final class INPUT extends Struct {
-  @Uint32()
-  external int type;
-  external InputUnion u;
-}
 
 class User32Api {
   User32Api() {

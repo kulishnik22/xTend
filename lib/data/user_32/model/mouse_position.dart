@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:xtend/data/user_32/model/point.dart';
+import 'package:xtend/data/user_32/model/input/point.dart';
 
 class MousePosition extends Equatable {
   const MousePosition({required this.x, required this.y});

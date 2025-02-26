@@ -142,15 +142,15 @@ class Xtend {
   void _simulateMouse(Gamepad gamepad) {
     int x = _zeroToTenRange(gamepad.leftThumbX);
     int y = _zeroToTenRange(gamepad.leftThumbY);
-    if (_prevLeftThumbX == x && _prevLeftThumbY == y && (x == 0 && y == 0)) {
+    if (_staysAtZeroZero(_prevLeftThumbX, x, _prevLeftThumbY, y)) {
       return;
     }
-    int xModifier = x * (math.pow(x, 2) / 60 + 1).toInt();
-    int yModifier = y * (math.pow(y, 2) / 60 + 1).toInt();
     MousePosition? mousePosition = _user32Api.getCursorPosition();
     if (mousePosition == null) {
       return;
     }
+    int xModifier = x * (math.pow(x, 2) / 60 + 1).toInt();
+    int yModifier = y * (math.pow(y, 2) / 60 + 1).toInt();
     _user32Api.setCursorPosition(
       mousePosition.x + xModifier,
       mousePosition.y - yModifier,
@@ -160,10 +160,14 @@ class Xtend {
   void _simulateScroll(Gamepad gamepad) {
     int y = _zeroToTenRange(gamepad.rightThumbY);
     int x = _zeroToTenRange(gamepad.rightThumbX);
-    if (_prevRightThumbX == x && _prevRightThumbY == y && (x == 0 && y == 0)) {
+    if (_staysAtZeroZero(_prevRightThumbX, x, _prevRightThumbY, y)) {
       return;
     }
     _user32Api.simulateScroll(y, x);
+  }
+
+  bool _staysAtZeroZero(int? prevX, int x, int? prevY, int y) {
+    return prevX == x && prevY == y && (x == 0 && y == 0);
   }
 
   void _simulateMouseButtons(Gamepad gamepad) {
@@ -386,8 +390,7 @@ class Xtend {
   void _updateXtendMode(Gamepad? gamepad) {
     if (gamepad == null) {
       _xtendMode = XtendMode.none;
-    } else if (_prevGamepad == null ||
-        _didClickChangeModeKeyCombination(gamepad)) {
+    } else if (_prevGamepad == null || _didClickChangeMode(gamepad)) {
       _xtendMode = _nextXtendMode();
     } else {
       return;
@@ -395,7 +398,7 @@ class Xtend {
     _modeStreamController.add(_xtendMode);
   }
 
-  bool _didClickChangeModeKeyCombination(Gamepad gamepad) {
+  bool _didClickChangeMode(Gamepad gamepad) {
     return (_prevGamepad!.buttons.start != gamepad.buttons.start ||
             _prevGamepad!.buttons.back != gamepad.buttons.back) &&
         (gamepad.buttons.start && gamepad.buttons.back);

@@ -19,7 +19,7 @@ There are 3 user-selectable modes:
 
 ### Gamepad mode
 Doesn't respond to any controller input except for mode switch key combination
-### Mouse mode
+### Default mouse mode configuration
 | Gamepad key        | Mapping                                                            |
 |--------------------|--------------------------------------------------------------------|
 | **Left joystick**  | Controls the mouse movement in exponential speed                   |
@@ -32,7 +32,7 @@ Doesn't respond to any controller input except for mode switch key combination
 | **Right shoulder** | Tab                                                                |
 > To switch between windows, hold **Left shoulder** and click **Right shoulder** button
 
-### Keyboard mode
+### Default keyboard mode configuration
 On-screen keyboard is displayed in alphanumeric mode in 50% opacity.  
 | Gamepad key         | Mapping                                     |
 |---------------------|---------------------------------------------|
@@ -47,6 +47,35 @@ On-screen keyboard is displayed in alphanumeric mode in 50% opacity.
 > In case of special characters or symbols, the keyboard also presses the necessary keys to achieve the character such as ctrl, alt or shift
 
 > To switch between windows, hold **Left shoulder** and click **Right shoulder** button  
+
+## Custom mapping
+To change controller mappings, open `config.json` file located next to your xTend executable.  
+> Note that it requires first run for the application to generate the config file  
+
+There are two mappings called `mouse` and `keyboard` each corresponding to a mapping for specific mode.  
+### Button mappings:
+- `mouseLeftClick`
+- `mouseRightClick`
+- `browserBack`
+- `browserForward`
+- `alt`
+- `tab`
+- `arrowUp`
+- `arrowDown`
+- `arrowLeft`
+- `arrowRight`
+- `backspace`
+- `enter`
+- `capsLock`
+- `clickAtKeyboardCursor`
+- `none`
+
+### Joysticks mappings:
+- `mouse`
+- `scroll`
+- `keyboardNavigation`
+- `none`
+> Note that certain mappings are **mode-specific**
 
 ## Installation  
 ### Download the latest build  

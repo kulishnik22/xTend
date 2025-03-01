@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:xtend/controller/xtend_controller.dart';
-import 'package:xtend/data/user_32/model/keyboard_event.dart';
 import 'package:xtend/service/keyboard_interface.dart';
 import 'package:xtend/util/system_tray_util.dart';
 import 'package:xtend/util/window_util.dart';
@@ -10,7 +10,6 @@ import 'package:xtend/view/constants/xtend_icons.dart';
 import 'package:xtend/view/keyboard/keyboard.dart';
 import 'package:xtend/view/keyboard/keyboard_controller.dart';
 import 'package:xtend/service/xtend.dart';
-import 'package:xtend/view/keyboard/keyboard_layout.dart';
 
 class XtendView extends StatefulWidget {
   const XtendView({super.key, required this.controller});
@@ -23,17 +22,20 @@ class XtendView extends StatefulWidget {
 
 class _XtendViewState extends State<XtendView> {
   late KeyboardController _keyboardController;
+  late Stream<XtendMode> _modeStream;
   @override
-  void initState() async {
+  void initState() {
     super.initState();
     _keyboardController = KeyboardController();
-    await _addSystemTray();
-    await _initializeController();
+    _modeStream = widget.controller.modeStream.asBroadcastStream();
+    unawaited(Future.wait([_addSystemTray(), _initializeController()]));
   }
 
   Future<void> _initializeController() async {
-    await widget.controller.initialize(_keyboardInterface);
-    widget.controller.modeStream.forEach((mode) async {
+    await widget.controller.initialize(
+      VirtualKeyboardInterface(keyboardController: _keyboardController),
+    );
+    _modeStream.forEach((mode) async {
       if (mode == XtendMode.keyboard) {
         await WindowUtil.showKeyboard();
         return;
@@ -43,52 +45,6 @@ class _XtendViewState extends State<XtendView> {
       }
       await WindowUtil.showWindow();
     });
-  }
-
-  KeyboardInterface get _keyboardInterface => KeyboardInterface(
-    charEventStream: _keyboardController.onKey
-        .where((key) => key is TextKey)
-        .map(
-          (key) => (
-            char: (key as TextKey).value.codeUnitAt(0),
-            eventType: key.eventType,
-          ),
-        ),
-    keyEventStream: _keyboardController.onKey
-        .where((key) => key is FunctionalKey)
-        .map((key) {
-          FunctionalKey functionalKey = key as FunctionalKey;
-          if (functionalKey.value == FunctionalKeyType.capsLock) {
-            return (
-              eventType: key.eventType,
-              keyboardEvent: KeyboardEvent.capital,
-              repeat: false,
-            );
-          }
-          return (
-            eventType: key.eventType,
-            keyboardEvent: _fromFunctionalKeyType(functionalKey.value),
-            repeat: true,
-          );
-        }),
-    capsLock: _keyboardController.capsLockState.value,
-    setCapsLock: _keyboardController.setCapsLock,
-    up: _keyboardController.up,
-    down: _keyboardController.down,
-    left: _keyboardController.left,
-    right: _keyboardController.right,
-    clickAtCursor: _keyboardController.clickAtCursor,
-    backspace: _keyboardController.backspace,
-    enter: _keyboardController.enter,
-    toggleCapsLock: _keyboardController.toggleCapsLock,
-  );
-
-  KeyboardEvent _fromFunctionalKeyType(FunctionalKeyType functionalKeyType) {
-    return switch (functionalKeyType) {
-      FunctionalKeyType.backspace => KeyboardEvent.back,
-      FunctionalKeyType.enter => KeyboardEvent.enter,
-      FunctionalKeyType.capsLock => KeyboardEvent.capital,
-    };
   }
 
   Future<void> _addSystemTray() async {
@@ -106,22 +62,23 @@ class _XtendViewState extends State<XtendView> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.black,
-        ),
-        child: Center(
-          child: StreamBuilder<XtendMode>(
-            stream: widget.controller.modeStream,
-            builder: (context, snapshot) {
-              return snapshot.data == null
-                  ? Container()
-                  : buildMode(snapshot.data!);
-            },
-          ),
+    return Material(color: Colors.transparent, child: buildBackground());
+  }
+
+  Container buildBackground() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.black,
+      ),
+      child: Center(
+        child: StreamBuilder<XtendMode>(
+          stream: _modeStream,
+          builder: (context, snapshot) {
+            return snapshot.data == null
+                ? Container()
+                : buildMode(snapshot.data!);
+          },
         ),
       ),
     );

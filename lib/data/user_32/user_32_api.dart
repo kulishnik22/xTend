@@ -201,7 +201,7 @@ class User32Api {
 
   void _performKeyPress(
     KeyboardEvent keyboardEvent,
-    KeyboardEventType keyEvent,
+    KeyboardEventType eventType,
   ) {
     int inputCount = 1;
     Pointer<INPUT> inputs = calloc<INPUT>(inputCount);
@@ -210,7 +210,7 @@ class User32Api {
       inputs.ref.u.ki
         ..wVk = keyboardEvent.value
         ..wScan = 0
-        ..dwFlags = keyEvent.value
+        ..dwFlags = eventType.value
         ..time = 0
         ..dwExtraInfo = nullptr;
       int inputSize = sizeOf<INPUT>();

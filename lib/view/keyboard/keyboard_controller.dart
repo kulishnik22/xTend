@@ -29,7 +29,7 @@ class KeyboardController {
       cursorPosition = ValueNotifier(_initialLayout.initialCursor),
       capsLockState = ValueNotifier(false),
       pressedKeyPosition = ValueNotifier(null),
-      _onKey = StreamController<VirtualKeyEvent>() {
+      _onKey = StreamController<VirtualKeyEvent>.broadcast() {
     maxLengthBounds = _computeMaxLengthBounds(layout.value);
   }
   static final KeyboardLayout _initialLayout =
@@ -68,6 +68,7 @@ class KeyboardController {
         .toList();
   }
 
+  //TODO refactor (split based on keyboard_interface)
   Stream<VirtualKeyEvent> get onKey => _onKey.stream;
 
   void up(KeyboardEventType eventType) {

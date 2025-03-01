@@ -1,5 +1,6 @@
 import 'package:xtend/app/dependency.dart';
 import 'package:xtend/controller/xtend_controller.dart';
+import 'package:xtend/data/config/config_service.dart';
 import 'package:xtend/data/user_32/user_32_api.dart';
 import 'package:xtend/data/xinput/gamepad_service.dart';
 import 'package:xtend/service/xtend.dart';
@@ -30,6 +31,7 @@ class XtendApp {
   void _registerDataSources() {
     _dependency.registerSingleton(User32Api());
     _dependency.registerSingleton(GamepadService());
+    _dependency.registerSingleton(ConfigService.file());
   }
 
   void _registerServices() {
@@ -37,6 +39,7 @@ class XtendApp {
       Xtend(
         user32Api: _dependency.get<User32Api>(),
         gamepadService: _dependency.get<GamepadService>(),
+        configService: _dependency.get<ConfigService>(),
       ),
     );
   }

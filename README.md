@@ -3,6 +3,7 @@
     <p id="version">v1.0.0</p>
     <h1>xTend</h1>
     <p>Let's you control your Windows PC using <b>Xbox controller</b></p>
+    <p style="font-size:14px;"><b>Minimalistic | Easy to use | Open-source</b></p>
 </div>
 
 

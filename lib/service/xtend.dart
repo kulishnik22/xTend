@@ -6,18 +6,15 @@ import 'package:xtend/data/user_32/model/mouse_position.dart';
 import 'package:xtend/data/user_32/user_32_api.dart';
 import 'package:xtend/data/xinput/gamepad_service.dart';
 import 'package:xtend/data/xinput/model/gamepad.dart';
-import 'package:xtend/keyboard/keyboard_controller.dart';
-import 'package:xtend/keyboard/keyboard_layout.dart';
+import 'package:xtend/service/keyboard_interface.dart';
 
 class Xtend {
-  Xtend({required this.keyboardController})
-    : _gamepadService = GamepadService(),
-      _user32Api = User32Api(),
-      _modeStreamController = StreamController.broadcast(),
+  Xtend({required this.gamepadService, required this.user32Api})
+    : _modeStreamController = StreamController.broadcast(),
       _xtendMode = XtendMode.none;
-  final GamepadService _gamepadService;
-  final User32Api _user32Api;
-  final KeyboardController keyboardController;
+  final GamepadService gamepadService;
+  final User32Api user32Api;
+  late final KeyboardInterface keyboard;
 
   final StreamController<XtendMode> _modeStreamController;
   Gamepad? _prevGamepad;
@@ -30,47 +27,40 @@ class Xtend {
 
   Stream<XtendMode> get modeStream => _modeStreamController.stream;
 
-  Future<void> initialize() async {
-    await _gamepadService.start();
-    keyboardController.onKey.forEach(_executeKey);
-    _gamepadService.stateStream.forEach(_updateState);
+  Future<void> initialize(KeyboardInterface keyboardInterface) async {
+    keyboard = keyboardInterface;
+    await gamepadService.start();
+    keyboard.charEventStream.forEach(_handleKeyboardCharEvent);
+    keyboard.keyEventStream.forEach(_handleKeyboardEvent);
+    gamepadService.stateStream.forEach(_updateState);
   }
 
   Future<void> dispose() async {
-    await _gamepadService.stop();
-    _user32Api.dispose();
+    await gamepadService.stop();
+    user32Api.dispose();
     await _modeStreamController.close();
     _capsLockSubscription?.cancel();
   }
 
-  void _executeKey(VirtualKeyEvent keyEvent) {
-    VirtualKeyboardKey key = keyEvent.key;
-    if (key is TextKey) {
-      _user32Api.simulateCharacter(
-        char: key.value.codeUnitAt(0),
-        isCapsLockActive: keyboardController.capsLockState.value,
-        keyEvent: keyEvent.keyEvent,
-      );
-    }
-    if (key is FunctionalKey) {
-      if (key.value == FunctionalKeyType.capsLock) {
-        _user32Api.simulateKeyboardEvent(
-          keyboardEvent: KeyboardEvent.capital,
-          keyEvent: keyEvent.keyEvent,
-          repeatOnKeyDown: false,
-        );
-      } else if (key.value == FunctionalKeyType.backspace) {
-        _user32Api.simulateKeyboardEvent(
-          keyboardEvent: KeyboardEvent.back,
-          keyEvent: keyEvent.keyEvent,
-        );
-      } else if (key.value == FunctionalKeyType.enter) {
-        _user32Api.simulateKeyboardEvent(
-          keyboardEvent: KeyboardEvent.enter,
-          keyEvent: keyEvent.keyEvent,
-        );
-      }
-    }
+  void _handleKeyboardCharEvent(
+    ({int char, KeyboardEventType eventType}) charEvent,
+  ) {
+    user32Api.simulateCharacter(
+      char: charEvent.char,
+      isCapsLockActive: keyboard.capsLock,
+      eventType: charEvent.eventType,
+    );
+  }
+
+  void _handleKeyboardEvent(
+    ({KeyboardEvent keyboardEvent, KeyboardEventType eventType, bool repeat})
+    keyboardEvent,
+  ) {
+    user32Api.simulateKeyboardEvent(
+      keyboardEvent: keyboardEvent.keyboardEvent,
+      eventType: keyboardEvent.eventType,
+      repeatOnKeyDown: keyboardEvent.repeat,
+    );
   }
 
   Future<void> _updateState(Gamepad? gamepad) async {
@@ -117,13 +107,13 @@ class Xtend {
     if (_capsLockSubscription != null) {
       return;
     }
-    _capsLockSubscription = _user32Api.getCapsLockStream().listen(
+    _capsLockSubscription = user32Api.getCapsLockStream().listen(
       _updateCapsLock,
     );
   }
 
   void _updateCapsLock(bool value) {
-    keyboardController.setCapsLock(value);
+    keyboard.setCapsLock(value);
   }
 
   void _quitListeningToCapsLock() {
@@ -145,13 +135,13 @@ class Xtend {
     if (_staysAtZeroZero(_prevLeftThumbX, x, _prevLeftThumbY, y)) {
       return;
     }
-    MousePosition? mousePosition = _user32Api.getCursorPosition();
+    MousePosition? mousePosition = user32Api.getCursorPosition();
     if (mousePosition == null) {
       return;
     }
     int xModifier = x * (math.pow(x, 2) / 60 + 1).toInt();
     int yModifier = y * (math.pow(y, 2) / 60 + 1).toInt();
-    _user32Api.setCursorPosition(
+    user32Api.setCursorPosition(
       mousePosition.x + xModifier,
       mousePosition.y - yModifier,
     );
@@ -163,7 +153,7 @@ class Xtend {
     if (_staysAtZeroZero(_prevRightThumbX, x, _prevRightThumbY, y)) {
       return;
     }
-    _user32Api.simulateScroll(y, x);
+    user32Api.simulateScroll(y, x);
   }
 
   bool _staysAtZeroZero(int? prevX, int x, int? prevY, int y) {
@@ -237,20 +227,20 @@ class Xtend {
     //allow detection of keyUp state
     if (prevY != null && prevX != null) {
       if (prevY.abs() > prevX.abs()) {
-        _mapToControllerAction(prevUp, up, keyboardController.up);
-        _mapToControllerAction(prevDown, down, keyboardController.down);
+        _mapToControllerAction(prevUp, up, keyboard.up);
+        _mapToControllerAction(prevDown, down, keyboard.down);
       } else if (prevY.abs() < prevX.abs()) {
-        _mapToControllerAction(prevLeft, left, keyboardController.left);
-        _mapToControllerAction(prevRight, right, keyboardController.right);
+        _mapToControllerAction(prevLeft, left, keyboard.left);
+        _mapToControllerAction(prevRight, right, keyboard.right);
       }
     }
     //perform action
     if (y.abs() > x.abs()) {
-      _mapToControllerAction(prevUp, up, keyboardController.up);
-      _mapToControllerAction(prevDown, down, keyboardController.down);
+      _mapToControllerAction(prevUp, up, keyboard.up);
+      _mapToControllerAction(prevDown, down, keyboard.down);
     } else {
-      _mapToControllerAction(prevLeft, left, keyboardController.left);
-      _mapToControllerAction(prevRight, right, keyboardController.right);
+      _mapToControllerAction(prevLeft, left, keyboard.left);
+      _mapToControllerAction(prevRight, right, keyboard.right);
     }
   }
 
@@ -271,22 +261,22 @@ class Xtend {
     _mapToControllerAction(
       _prevGamepad?.buttons.a,
       gamepad.buttons.a,
-      keyboardController.clickAtCursor,
+      keyboard.clickAtCursor,
     );
     _mapToControllerAction(
       _prevGamepad?.buttons.b,
       gamepad.buttons.b,
-      keyboardController.backspace,
+      keyboard.backspace,
     );
     _mapToControllerAction(
       _prevGamepad?.buttons.x,
       gamepad.buttons.x,
-      keyboardController.enter,
+      keyboard.enter,
     );
     _mapToControllerAction(
       _prevGamepad?.buttons.y,
       gamepad.buttons.y,
-      keyboardController.toggleCapsLock,
+      keyboard.toggleCapsLock,
     );
   }
 
@@ -329,13 +319,13 @@ class Xtend {
   void _mapToControllerAction(
     bool? prevButton,
     bool button,
-    void Function(KeyboardKeyEvent keyEvent) action,
+    void Function(KeyboardEventType eventType) action,
   ) {
     _mapControllerButtonToAction(
       prevButton,
       button,
-      () => action(KeyboardKeyEvent.down),
-      () => action(KeyboardKeyEvent.up),
+      () => action(KeyboardEventType.down),
+      () => action(KeyboardEventType.up),
     );
   }
 
@@ -348,8 +338,8 @@ class Xtend {
     _mapControllerButtonToAction(
       prevButton,
       button,
-      () => _user32Api.simulateMouseEvent(mouseEventDown),
-      () => _user32Api.simulateMouseEvent(mouseEventUp),
+      () => user32Api.simulateMouseEvent(mouseEventDown),
+      () => user32Api.simulateMouseEvent(mouseEventUp),
     );
   }
 
@@ -361,13 +351,13 @@ class Xtend {
     _mapControllerButtonToAction(
       prevButton,
       button,
-      () => _user32Api.simulateKeyboardEvent(
+      () => user32Api.simulateKeyboardEvent(
         keyboardEvent: keyboardEvent,
-        keyEvent: KeyboardKeyEvent.down,
+        eventType: KeyboardEventType.down,
       ),
-      () => _user32Api.simulateKeyboardEvent(
+      () => user32Api.simulateKeyboardEvent(
         keyboardEvent: keyboardEvent,
-        keyEvent: KeyboardKeyEvent.up,
+        eventType: KeyboardEventType.up,
       ),
     );
   }

@@ -50,7 +50,7 @@ class GamepadService {
     } finally {
       xinputApi.dispose();
       stopReceivePort.close();
-      sendPort.send(null);
+      sendPort.send(null); // notify close ready
     }
   }
 

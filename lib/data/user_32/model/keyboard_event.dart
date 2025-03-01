@@ -4,11 +4,11 @@ class KeyData {
   final List<KeyboardEvent> requirements;
 }
 
-enum KeyboardKeyEvent {
+enum KeyboardEventType {
   up(0x0002),
   down(0x0000);
 
-  const KeyboardKeyEvent(this.value);
+  const KeyboardEventType(this.value);
 
   final int value;
 }

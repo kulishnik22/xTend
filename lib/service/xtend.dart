@@ -181,6 +181,15 @@ class Xtend {
   }
 
   void Function(bool? prev, bool button) _getButtonAction(ButtonAction action) {
+    if (_xtendMode == XtendMode.mouse &&
+        action == ButtonAction.clickAtKeyboardCursor) {
+      return (prev, button) {};
+    }
+    if (_xtendMode == XtendMode.keyboard &&
+        (action == ButtonAction.mouseLeftClick ||
+            action == ButtonAction.mouseRightClick)) {
+      return (prev, button) {};
+    }
     return switch (action) {
       ButtonAction.mouseLeftClick => _simulateMouseLeftClick,
       ButtonAction.mouseRightClick => _simulateMouseRightClick,
@@ -202,6 +211,10 @@ class Xtend {
 
   void Function(int? prevThumbX, int? prevThumbY, int thumbX, int thumbY)
   _getJoystickAction(JoystickAction action) {
+    if (_xtendMode == XtendMode.mouse &&
+        action == JoystickAction.keyboardNavigation) {
+      return (prevThumbX, prevThumbY, thumbX, thumbY) {};
+    }
     return switch (action) {
       JoystickAction.keyboardNavigation => _simulateKeyboardNavigation,
       JoystickAction.mouse => _simulateMouse,

@@ -53,9 +53,9 @@ To change controller mappings, open `config.json` file located next to your xTen
 > Note that it requires first run for the application to generate the config file  
 
 There are two mappings called `mouse` and `keyboard` each corresponding to a mapping for specific mode.  
-### Button mappings:
-- `mouseLeftClick`
-- `mouseRightClick`
+### Button mappings
+- `mouseLeftClick` `// mouse mode specific`
+- `mouseRightClick` `// mouse mode specific`
 - `browserBack`
 - `browserForward`
 - `alt`
@@ -67,13 +67,13 @@ There are two mappings called `mouse` and `keyboard` each corresponding to a map
 - `backspace`
 - `enter`
 - `capsLock`
-- `clickAtKeyboardCursor`
+- `clickAtKeyboardCursor` `// keyboard mode specific`
 - `none`
 
-### Joysticks mappings:
+### Joysticks mappings
 - `mouse`
 - `scroll`
-- `keyboardNavigation`
+- `keyboardNavigation` `// keyboard mode specific`
 - `none`
 > Note that certain mappings are **mode-specific**
 

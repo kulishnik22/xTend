@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
-import 'package:xtend/data/user_32/model/keyboard_input.dart';
-import 'package:xtend/data/user_32/model/mouse_input.dart';
+import 'package:xtend/data/user_32/model/input/input.dart';
+import 'package:xtend/data/user_32/model/keyboard_event.dart';
+import 'package:xtend/data/user_32/model/input/keyboard_input.dart';
+import 'package:xtend/data/user_32/model/input/mouse_input.dart';
 import 'package:xtend/data/user_32/model/mouse_position.dart';
-import 'package:xtend/data/user_32/model/point.dart';
+import 'package:xtend/data/user_32/model/input/point.dart';
 
 typedef GetCursorPosNative = Int32 Function(Pointer<POINT>);
 typedef GetCursorPosDart = int Function(Pointer<POINT>);
@@ -23,17 +25,6 @@ typedef GetKeyStateDart = int Function(int);
 
 typedef VkKeyScanNative = Int16 Function(Uint16 ch);
 typedef VkKeyScanDart = int Function(int ch);
-
-final class InputUnion extends Union {
-  external MOUSEINPUT mi;
-  external KEYBDINPUT ki;
-}
-
-final class INPUT extends Struct {
-  @Uint32()
-  external int type;
-  external InputUnion u;
-}
 
 class User32Api {
   User32Api() {
@@ -155,35 +146,35 @@ class User32Api {
   void simulateCharacter({
     required int char,
     required bool isCapsLockActive,
-    required KeyboardKeyEvent keyEvent,
+    required KeyboardEventType eventType,
   }) {
     KeyData keyData = getKeyData(char);
     if (isCapsLockActive &&
         keyData.requirements.singleOrNull == KeyboardEvent.shift) {
       simulateKeyboardEvent(
         keyboardEvent: keyData.keyboardEvent,
-        keyEvent: keyEvent,
+        eventType: eventType,
       );
       return;
     }
-    if (keyEvent == KeyboardKeyEvent.down) {
+    if (eventType == KeyboardEventType.down) {
       for (var key in keyData.requirements) {
         simulateKeyboardEvent(
           keyboardEvent: key,
-          keyEvent: KeyboardKeyEvent.down,
+          eventType: KeyboardEventType.down,
           repeatOnKeyDown: false,
         );
       }
     }
     simulateKeyboardEvent(
       keyboardEvent: keyData.keyboardEvent,
-      keyEvent: keyEvent,
+      eventType: eventType,
     );
-    if (keyEvent == KeyboardKeyEvent.up) {
+    if (eventType == KeyboardEventType.up) {
       for (var key in keyData.requirements) {
         simulateKeyboardEvent(
           keyboardEvent: key,
-          keyEvent: KeyboardKeyEvent.up,
+          eventType: KeyboardEventType.up,
           repeatOnKeyDown: false,
         );
       }
@@ -192,16 +183,28 @@ class User32Api {
 
   void simulateKeyboardEvent({
     required KeyboardEvent keyboardEvent,
-    required KeyboardKeyEvent keyEvent,
+    required KeyboardEventType eventType,
     bool repeatOnKeyDown = true,
   }) {
-    _performKeyPress(keyboardEvent, keyEvent);
+    _repeatingKeyboardEvent(
+      keyPress: () => _performKeyPress(keyboardEvent, eventType),
+      eventType: eventType,
+      repeatOnKeyDown: repeatOnKeyDown,
+    );
+  }
+
+  void _repeatingKeyboardEvent({
+    required void Function() keyPress,
+    required KeyboardEventType eventType,
+    bool repeatOnKeyDown = true,
+  }) {
+    keyPress();
     if (repeatOnKeyDown) {
-      switch (keyEvent) {
-        case KeyboardKeyEvent.down:
-          _startRepeat(() => _performKeyPress(keyboardEvent, keyEvent));
+      switch (eventType) {
+        case KeyboardEventType.down:
+          _startRepeat(keyPress);
           break;
-        case KeyboardKeyEvent.up:
+        case KeyboardEventType.up:
           _stopRepeat();
           break;
       }
@@ -210,7 +213,7 @@ class User32Api {
 
   void _performKeyPress(
     KeyboardEvent keyboardEvent,
-    KeyboardKeyEvent keyEvent,
+    KeyboardEventType eventType,
   ) {
     int inputCount = 1;
     Pointer<INPUT> inputs = calloc<INPUT>(inputCount);
@@ -219,7 +222,7 @@ class User32Api {
       inputs.ref.u.ki
         ..wVk = keyboardEvent.value
         ..wScan = 0
-        ..dwFlags = keyEvent.value
+        ..dwFlags = eventType.value
         ..time = 0
         ..dwExtraInfo = nullptr;
       int inputSize = sizeOf<INPUT>();

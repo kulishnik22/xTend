@@ -59,16 +59,6 @@ jobs:
           echo "$releaseNotes" >> $Env:GITHUB_ENV
           echo "EOF" >> $Env:GITHUB_ENV
 
-      - name: upload github release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: xTend.zip
-          tag_name: v${{ env.VERSION }}
-          name: xTend v${{ env.VERSION }}
-          body: ${{ env.RELEASE_NOTES }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: update README
         run: |
           $REPO="${{ github.repository }}"
@@ -84,6 +74,16 @@ jobs:
           git add README.md
           git commit -m "Update README with latest release URL [skip ci]"
           git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: upload github release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: xTend.zip
+          tag_name: v${{ env.VERSION }}
+          name: xTend v${{ env.VERSION }}
+          body: ${{ env.RELEASE_NOTES }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

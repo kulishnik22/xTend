@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-class CustomWindowUtil {
+class WindowUtil {
   static const MethodChannel _channel = MethodChannel('window_util');
 
   static Timer? _hideTimer;

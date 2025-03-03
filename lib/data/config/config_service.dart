@@ -22,7 +22,8 @@ class FileConfigService implements ConfigService {
       return defaultConfig;
     }
     String rawJson = _configFile.readAsStringSync();
-    return Config.fromJson(jsonDecode(rawJson));
+    Map<String, dynamic> configJson = jsonDecode(rawJson);
+    return Config.fromJson(configJson);
   }
 
   @override

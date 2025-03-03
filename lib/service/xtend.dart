@@ -166,6 +166,14 @@ class Xtend {
       _prevGamepad?.buttons.rightShoulder,
       gamepad.buttons.rightShoulder,
     );
+    _mapTriggerAsButton(_getButtonAction(mapping.leftTrigger))(
+      _prevGamepad?.leftTrigger,
+      gamepad.leftTrigger,
+    );
+    _mapTriggerAsButton(_getButtonAction(mapping.rightTrigger))(
+      _prevGamepad?.rightTrigger,
+      gamepad.rightTrigger,
+    );
     _getJoystickAction(mapping.leftJoystick)(
       _prevLeftThumbX,
       _prevLeftThumbY,
@@ -178,6 +186,16 @@ class Xtend {
       gamepad.rightThumbX,
       gamepad.rightThumbY,
     );
+  }
+
+  void Function(int? prev, int trigger) _mapTriggerAsButton(
+    void Function(bool?, bool) action,
+  ) {
+    return (prev, trigger) {
+      bool? prevPressed = prev == null ? null : prev > 0;
+      bool pressed = trigger > 0;
+      action(prevPressed, pressed);
+    };
   }
 
   void Function(bool? prev, bool button) _getButtonAction(ButtonAction action) {
@@ -205,6 +223,17 @@ class Xtend {
       ButtonAction.enter => _simulateEnter,
       ButtonAction.capsLock => _simulateCapsLock,
       ButtonAction.clickAtKeyboardCursor => _simulateClickAtCursor,
+      ButtonAction.volumeUp => _simulateVolumeUp,
+      ButtonAction.volumeDown => _simulateVolumeDown,
+      ButtonAction.shift => _simulateShift,
+      ButtonAction.win => _simulateWin,
+      ButtonAction.ctrl => _simulateCtrl,
+      ButtonAction.ctrlC => _simulateCtrlC,
+      ButtonAction.ctrlV => _simulateCtrlV,
+      ButtonAction.ctrlX => _simulateCtrlX,
+      ButtonAction.ctrlW => _simulateCtrlW,
+      ButtonAction.ctrlA => _simulateCtrlA,
+      ButtonAction.ctrlS => _simulateCtrlS,
       ButtonAction.none => (prev, button) {},
     };
   }
@@ -355,6 +384,62 @@ class Xtend {
   T? _nullableMap<T, G>(G? value, T Function(G nonNull) transform) =>
       value == null ? null : transform(value);
 
+  void _simulateVolumeUp(bool? prev, bool button) {
+    _mapToKeyboard(prev, button, KeyboardEvent.volumeUp);
+  }
+
+  void _simulateVolumeDown(bool? prev, bool button) {
+    _mapToKeyboard(prev, button, KeyboardEvent.volumeDown);
+  }
+
+  void _simulateWin(bool? prev, bool button) {
+    _mapToKeyboard(prev, button, KeyboardEvent.lWin);
+  }
+
+  void _simulateShift(bool? prev, bool button) {
+    _mapToKeyboard(prev, button, KeyboardEvent.shift);
+  }
+
+  void _simulateCtrl(bool? prev, bool button) {
+    _mapToKeyboard(prev, button, KeyboardEvent.control);
+  }
+
+  void _simulateCtrlC(bool? prev, bool button) {
+    const KeyboardEvent ctrl = KeyboardEvent.control;
+    const KeyboardEvent c = KeyboardEvent.c;
+    _mapToKeyCombination(prev, button, ctrl, c);
+  }
+
+  void _simulateCtrlV(bool? prev, bool button) {
+    const KeyboardEvent ctrl = KeyboardEvent.control;
+    const KeyboardEvent v = KeyboardEvent.v;
+    _mapToKeyCombination(prev, button, ctrl, v);
+  }
+
+  void _simulateCtrlX(bool? prev, bool button) {
+    const KeyboardEvent ctrl = KeyboardEvent.control;
+    const KeyboardEvent x = KeyboardEvent.x;
+    _mapToKeyCombination(prev, button, ctrl, x);
+  }
+
+  void _simulateCtrlW(bool? prev, bool button) {
+    const KeyboardEvent ctrl = KeyboardEvent.control;
+    const KeyboardEvent w = KeyboardEvent.w;
+    _mapToKeyCombination(prev, button, ctrl, w);
+  }
+
+  void _simulateCtrlA(bool? prev, bool button) {
+    const KeyboardEvent ctrl = KeyboardEvent.control;
+    const KeyboardEvent a = KeyboardEvent.a;
+    _mapToKeyCombination(prev, button, ctrl, a);
+  }
+
+  void _simulateCtrlS(bool? prev, bool button) {
+    const KeyboardEvent ctrl = KeyboardEvent.control;
+    const KeyboardEvent s = KeyboardEvent.s;
+    _mapToKeyCombination(prev, button, ctrl, s);
+  }
+
   void _simulateClickAtCursor(bool? prev, bool button) {
     _mapToControllerAction(prev, button, keyboard.clickAtCursor);
   }
@@ -393,6 +478,32 @@ class Xtend {
 
   void _simulateTab(bool? prev, bool button) {
     _mapToKeyboard(prev, button, KeyboardEvent.tab);
+  }
+
+  void _mapToKeyCombination(
+    bool? prev,
+    bool button,
+    KeyboardEvent primary,
+    KeyboardEvent secondary,
+  ) {
+    _mapToControllerAction(prev, button, (eventType) {
+      if (eventType == KeyboardEventType.up) {
+        user32Api.simulateKeyboardEvent(
+          keyboardEvent: secondary,
+          eventType: eventType,
+        );
+      }
+      user32Api.simulateKeyboardEvent(
+        keyboardEvent: primary,
+        eventType: eventType,
+      );
+      if (eventType == KeyboardEventType.down) {
+        user32Api.simulateKeyboardEvent(
+          keyboardEvent: secondary,
+          eventType: eventType,
+        );
+      }
+    });
   }
 
   void _mapToControllerAction(

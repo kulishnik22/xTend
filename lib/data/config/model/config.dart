@@ -41,6 +41,8 @@ class GamepadMapping extends Equatable {
     required this.rightShoulder,
     required this.leftJoystick,
     required this.rightJoystick,
+    required this.leftTrigger,
+    required this.rightTrigger,
   });
 
   const GamepadMapping.mouseStandard()
@@ -59,6 +61,8 @@ class GamepadMapping extends Equatable {
         rightShoulder: ButtonAction.tab,
         leftJoystick: JoystickAction.mouse,
         rightJoystick: JoystickAction.scroll,
+        leftTrigger: ButtonAction.volumeUp,
+        rightTrigger: ButtonAction.volumeDown,
       );
 
   const GamepadMapping.keyboardStandard()
@@ -77,6 +81,8 @@ class GamepadMapping extends Equatable {
         rightShoulder: ButtonAction.tab,
         leftJoystick: JoystickAction.keyboardNavigation,
         rightJoystick: JoystickAction.none,
+        leftTrigger: ButtonAction.ctrlC,
+        rightTrigger: ButtonAction.ctrlV,
       );
 
   factory GamepadMapping.fromJson(Map<String, dynamic> json) => GamepadMapping(
@@ -108,6 +114,12 @@ class GamepadMapping extends Equatable {
     rightShoulder: ButtonAction.values.firstWhere(
       (action) => action.name == json['rightShoulder'],
     ),
+    leftTrigger: ButtonAction.values.firstWhere(
+      (action) => action.name == json['leftTrigger'],
+    ),
+    rightTrigger: ButtonAction.values.firstWhere(
+      (action) => action.name == json['rightTrigger'],
+    ),
     leftJoystick: JoystickAction.values.firstWhere(
       (action) => action.name == json['leftJoystick'],
     ),
@@ -128,6 +140,8 @@ class GamepadMapping extends Equatable {
   final ButtonAction rightThumb;
   final ButtonAction leftShoulder;
   final ButtonAction rightShoulder;
+  final ButtonAction leftTrigger;
+  final ButtonAction rightTrigger;
   final JoystickAction leftJoystick;
   final JoystickAction rightJoystick;
 
@@ -144,6 +158,8 @@ class GamepadMapping extends Equatable {
     'rightThumb': rightThumb.name,
     'leftShoulder': leftShoulder.name,
     'rightShoulder': rightShoulder.name,
+    'leftTrigger': leftTrigger.name,
+    'rightTrigger': rightTrigger.name,
     'leftJoystick': leftJoystick.name,
     'rightJoystick': rightJoystick.name,
   };
@@ -162,6 +178,8 @@ class GamepadMapping extends Equatable {
     rightThumb,
     leftShoulder,
     rightShoulder,
+    leftTrigger,
+    rightTrigger,
     leftJoystick,
     rightJoystick,
   ];
@@ -182,6 +200,17 @@ enum ButtonAction {
   enter,
   capsLock,
   clickAtKeyboardCursor,
+  volumeUp,
+  volumeDown,
+  shift,
+  win,
+  ctrl,
+  ctrlC,
+  ctrlV,
+  ctrlX,
+  ctrlW,
+  ctrlA,
+  ctrlS,
   none,
 }
 

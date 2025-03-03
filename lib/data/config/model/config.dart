@@ -61,8 +61,8 @@ class GamepadMapping extends Equatable {
         rightShoulder: ButtonAction.tab,
         leftJoystick: JoystickAction.mouse,
         rightJoystick: JoystickAction.scroll,
-        leftTrigger: ButtonAction.volumeUp,
-        rightTrigger: ButtonAction.volumeDown,
+        leftTrigger: ButtonAction.volumeDown,
+        rightTrigger: ButtonAction.volumeUp,
       );
 
   const GamepadMapping.keyboardStandard()

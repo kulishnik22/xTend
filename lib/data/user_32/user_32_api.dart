@@ -186,11 +186,23 @@ class User32Api {
     required KeyboardEventType eventType,
     bool repeatOnKeyDown = true,
   }) {
-    _performKeyPress(keyboardEvent, eventType);
+    _repeatingKeyboardEvent(
+      keyPress: () => _performKeyPress(keyboardEvent, eventType),
+      eventType: eventType,
+      repeatOnKeyDown: repeatOnKeyDown,
+    );
+  }
+
+  void _repeatingKeyboardEvent({
+    required void Function() keyPress,
+    required KeyboardEventType eventType,
+    bool repeatOnKeyDown = true,
+  }) {
+    keyPress();
     if (repeatOnKeyDown) {
       switch (eventType) {
         case KeyboardEventType.down:
-          _startRepeat(() => _performKeyPress(keyboardEvent, eventType));
+          _startRepeat(keyPress);
           break;
         case KeyboardEventType.up:
           _stopRepeat();

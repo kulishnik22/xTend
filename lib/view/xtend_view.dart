@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:xtend/controller/xtend_controller.dart';
-import 'package:xtend/service/keyboard_interface.dart';
+import 'package:xtend/view/keyboard/virtual_keyboard_interface.dart';
 import 'package:xtend/util/system_tray_util.dart';
 import 'package:xtend/util/window_util.dart';
 import 'package:xtend/view/constants/xtend_icons.dart';

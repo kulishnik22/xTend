@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:xtend/controller/xtend_controller.dart';
-import 'package:xtend/view/keyboard/virtual_keyboard_interface.dart';
 import 'package:xtend/util/system_tray_util.dart';
 import 'package:xtend/util/window_util.dart';
 import 'package:xtend/view/constants/xtend_icons.dart';
@@ -32,9 +31,7 @@ class _XtendViewState extends State<XtendView> {
   }
 
   Future<void> _initializeController() async {
-    await widget.controller.initialize(
-      VirtualKeyboardInterface(keyboardController: _keyboardController),
-    );
+    await widget.controller.initialize(_keyboardController);
     _modeStream.forEach((mode) async {
       if (mode == XtendMode.keyboard) {
         await WindowUtil.showKeyboard();

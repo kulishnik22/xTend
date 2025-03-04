@@ -10,18 +10,21 @@ import 'package:xtend/data/xinput/gamepad_service.dart';
 import 'package:xtend/data/xinput/model/gamepad.dart';
 import 'package:xtend/service/keyboard_interface.dart';
 
+enum XtendExceptionType { readConfig, deserialize }
+
 class Xtend {
   Xtend({
     required this.gamepadService,
     required this.user32Api,
     required this.configService,
   }) : _modeStreamController = StreamController.broadcast(),
-       _xtendMode = XtendMode.none;
+       _xtendMode = XtendMode.none,
+       _config = const Config.standard();
   final GamepadService gamepadService;
   final User32Api user32Api;
   final ConfigService configService;
   late final KeyboardInterface keyboard;
-  late final Config _config;
+  Config _config;
 
   final StreamController<XtendMode> _modeStreamController;
   Gamepad? _prevGamepad;
@@ -34,13 +37,26 @@ class Xtend {
 
   Stream<XtendMode> get modeStream => _modeStreamController.stream;
 
-  Future<void> initialize(KeyboardInterface keyboardInterface) async {
+  Future<XtendExceptionType?> initialize(
+    KeyboardInterface keyboardInterface,
+  ) async {
     keyboard = keyboardInterface;
-    _config = configService.readConfig();
     await gamepadService.start();
     keyboard.charEventStream.forEach(_handleKeyboardCharEvent);
     keyboard.keyEventStream.forEach(_handleKeyboardEvent);
     gamepadService.stateStream.forEach(_updateState);
+    return _loadConfig();
+  }
+
+  XtendExceptionType? _loadConfig() {
+    try {
+      _config = configService.readConfig();
+      return null;
+    } on DeserializationException {
+      return XtendExceptionType.deserialize;
+    } on Object {
+      return XtendExceptionType.readConfig;
+    }
   }
 
   Future<void> dispose() async {

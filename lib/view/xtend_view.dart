@@ -22,39 +22,52 @@ class XtendView extends StatefulWidget {
 class _XtendViewState extends State<XtendView> {
   late KeyboardController _keyboardController;
   late Stream<XtendMode> _modeStream;
+  late XtendExceptionType? _initializationError;
   @override
   void initState() {
     super.initState();
     _keyboardController = KeyboardController();
     _modeStream = widget.controller.modeStream.asBroadcastStream();
-    unawaited(Future.wait([_addSystemTray(), _initializeController()]));
+    unawaited(Future.wait([_addSystemTray(), _initializeModeStreamRead()]));
   }
 
-  Future<void> _initializeController() async {
-    await widget.controller.initialize(_keyboardController);
+  Future<void> _initializeModeStreamRead() async {
+    await _initializeController();
     _modeStream.forEach((mode) async {
       if (mode == XtendMode.keyboard) {
         await WindowUtil.showKeyboard();
         return;
       }
-      if (mode == XtendMode.gamepad) {
+      if (_isModeAfterKeyboard(mode)) {
         await WindowUtil.hideWindow();
       }
       await WindowUtil.showWindow();
     });
   }
 
-  Future<void> _addSystemTray() async {
-    SystemTrayUtil.initialize(
-      onExitMenuSelected: () async {
-        await _keyboardController.dispose();
-        await widget.controller.dispose();
-        await SystemTrayUtil.removeTrayIcon();
-        await WindowUtil.closeWindow();
-        exit(0);
-      },
+  bool _isModeAfterKeyboard(XtendMode mode) {
+    return mode ==
+        XtendMode.values[(XtendMode.keyboard.index + 1) %
+            XtendMode.values.length];
+  }
+
+  Future<void> _initializeController() async {
+    _initializationError = await widget.controller.initialize(
+      _keyboardController,
     );
+  }
+
+  Future<void> _addSystemTray() async {
+    SystemTrayUtil.initialize(onExitMenuSelected: _quitApplication);
     await SystemTrayUtil.addTrayIcon();
+  }
+
+  Future<void> _quitApplication() async {
+    await _keyboardController.dispose();
+    await widget.controller.dispose();
+    await SystemTrayUtil.removeTrayIcon();
+    await WindowUtil.closeWindow();
+    exit(0);
   }
 
   @override
@@ -74,14 +87,17 @@ class _XtendViewState extends State<XtendView> {
           builder: (context, snapshot) {
             return snapshot.data == null
                 ? Container()
-                : buildMode(snapshot.data!);
+                : buildBody(snapshot.data!);
           },
         ),
       ),
     );
   }
 
-  Widget buildMode(XtendMode mode) {
+  Widget buildBody(XtendMode mode) {
+    if (_initializationError != null) {
+      return buildError();
+    }
     if (mode == XtendMode.keyboard) {
       return Keyboard(
         controller: _keyboardController,
@@ -96,6 +112,12 @@ class _XtendViewState extends State<XtendView> {
       );
     }
     return mode.icon();
+  }
+
+  Widget buildError() {
+    //TODO trigger show error window and display error till mode change
+    //TODO NOTE! The first mode event must be delayed after the error is shown
+    return Container();
   }
 }
 

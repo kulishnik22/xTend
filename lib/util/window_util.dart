@@ -6,14 +6,16 @@ class WindowUtil {
   static const MethodChannel _channel = MethodChannel('window_util');
 
   static Timer? _hideTimer;
-  static Future<void> showWindow() async {
+  static Future<void> showWindow([
+    Duration hideDuration = const Duration(seconds: 1),
+  ]) async {
     if (_hideTimer != null) {
       _hideTimer!.cancel();
-      _resetHideTimer();
+      _resetHideTimer(hideDuration);
       return;
     }
     await _showWindowWithoutFocus(size: const Size(200, 200));
-    _resetHideTimer();
+    _resetHideTimer(hideDuration);
   }
 
   static Future<void> showKeyboard() {
@@ -28,8 +30,8 @@ class WindowUtil {
     );
   }
 
-  static void _resetHideTimer() {
-    _hideTimer = Timer(const Duration(seconds: 1), () async {
+  static void _resetHideTimer(Duration hideDuration) {
+    _hideTimer = Timer(hideDuration, () async {
       await hideWindow();
       _hideTimer = null;
     });

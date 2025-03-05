@@ -34,6 +34,10 @@ class _XtendViewState extends State<XtendView> {
   Future<void> _initializeModeStreamRead() async {
     await _initializeController();
     _modeStream.forEach((mode) async {
+      if (_initializationError != null) {
+        WindowUtil.showWindow(const Duration(seconds: 5));
+        return;
+      }
       if (mode == XtendMode.keyboard) {
         await WindowUtil.showKeyboard();
         return;
@@ -96,7 +100,9 @@ class _XtendViewState extends State<XtendView> {
 
   Widget buildBody(XtendMode mode) {
     if (_initializationError != null) {
-      return buildError();
+      Widget errorWidget = buildError();
+      _initializationError = null;
+      return errorWidget;
     }
     if (mode == XtendMode.keyboard) {
       return Keyboard(
@@ -115,20 +121,28 @@ class _XtendViewState extends State<XtendView> {
   }
 
   Widget buildError() {
-    return Flexible(
-      child: Text(
-        _getErrorMessage(),
-        style: const TextStyle(fontSize: 16, color: Colors.white),
-        softWrap: true,
-        overflow: TextOverflow.visible,
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Text(
+            '❌\n${_getErrorMessage()}',
+            style: const TextStyle(fontSize: 16, color: Colors.white),
+            textAlign: TextAlign.center,
+            softWrap: true,
+            overflow: TextOverflow.visible,
+          ),
+        ),
+      ],
     );
   }
 
   String _getErrorMessage() {
     return switch (_initializationError!) {
-      XtendExceptionType.readConfig => 'Unable to read config',
-      XtendExceptionType.deserialize => 'Config format is invalid',
+      XtendExceptionType.readConfig =>
+        'Unable to read config\n(Default config is used)',
+      XtendExceptionType.deserialize =>
+        'Config format is invalid\n(Default config is used)',
     };
   }
 }

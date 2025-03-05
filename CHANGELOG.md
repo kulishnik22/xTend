@@ -1,3 +1,7 @@
+# 1.3.1
+
+- Fixed config loading error handling 🚫
+
 # v1.3.0
 
 - Added custom key mapping configuration file 📋

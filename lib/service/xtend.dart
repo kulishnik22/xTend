@@ -45,10 +45,10 @@ class Xtend {
     keyboard.charEventStream.forEach(_handleKeyboardCharEvent);
     keyboard.keyEventStream.forEach(_handleKeyboardEvent);
     gamepadService.stateStream.forEach(_updateState);
-    return _loadConfig();
+    return _tryLoadConfig();
   }
 
-  XtendExceptionType? _loadConfig() {
+  XtendExceptionType? _tryLoadConfig() {
     try {
       _config = configService.readConfig();
       return null;

@@ -115,9 +115,21 @@ class _XtendViewState extends State<XtendView> {
   }
 
   Widget buildError() {
-    //TODO trigger show error window and display error till mode change
-    //TODO NOTE! The first mode event must be delayed after the error is shown
-    return Container();
+    return Flexible(
+      child: Text(
+        _getErrorMessage(),
+        style: const TextStyle(fontSize: 16, color: Colors.white),
+        softWrap: true,
+        overflow: TextOverflow.visible,
+      ),
+    );
+  }
+
+  String _getErrorMessage() {
+    return switch (_initializationError!) {
+      XtendExceptionType.readConfig => 'Unable to read config',
+      XtendExceptionType.deserialize => 'Config format is invalid',
+    };
   }
 }
 

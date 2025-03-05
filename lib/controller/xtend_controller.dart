@@ -7,6 +7,7 @@ class XtendController {
   final Xtend xtend;
 
   Stream<XtendMode> get modeStream => xtend.modeStream;
+
   Future<XtendExceptionType?> initialize(KeyboardController keyboard) {
     return xtend.initialize(
       VirtualKeyboardInterface(keyboardController: keyboard),

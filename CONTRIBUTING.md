@@ -20,3 +20,11 @@ If you encounter bugs or have suggestions, please open an issue with a clear des
 - Follow the project’s existing coding patterns.
 
 Thank you for helping improve xTend!
+
+## Roadmap
+
+- [] Add more mappings
+- [] Refactor the project to be testable
+- [] Write tests
+- [] Comment the code
+

@@ -21,34 +21,37 @@ There are 3 user-selectable modes:
 ### Gamepad mode
 Doesn't respond to any controller input except for mode switch key combination
 ### Default mouse mode configuration
-| Gamepad key        | Mapping                                                            |
-|--------------------|--------------------------------------------------------------------|
-| **Left joystick**  | Controls the mouse movement in exponential speed                   |
-| **Right joystick** | Controls the scroll in linear speed (both vertical and horizontal) |
-| **A**              | Left mouse button                                                  |
-| **B**              | Right mouse button                                                 |
-| **X**              | Browser back                                                       |
-| **Y**              | Browser forward                                                    |
-| **Left trigger**   | Volume down                                                        |
-| **Right trigger**  | Volume up                                                          |
-| **Left shoulder**  | Alt                                                                |
-| **Right shoulder** | Tab                                                                |
+| Gamepad key         | Mapping                                                            |
+|---------------------|--------------------------------------------------------------------|
+| **Left joystick**   | Controls the mouse movement in exponential speed                   |
+| **Right joystick**  | Controls the scroll in linear speed (both vertical and horizontal) |
+| **Directional pad** | Controls the arrow keys                                            |
+| **A**               | Left mouse button                                                  |
+| **B**               | Right mouse button                                                 |
+| **X**               | Browser back                                                       |
+| **Y**               | Browser forward                                                    |
+| **Left thumb**      | Win+D                                                              |
+| **Left trigger**    | Volume down                                                        |
+| **Right trigger**   | Volume up                                                          |
+| **Left shoulder**   | Alt                                                                |
+| **Right shoulder**  | Tab                                                                |
 > To switch between windows, hold **Left shoulder** and click **Right shoulder** button
 
 ### Default keyboard mode configuration
 On-screen keyboard is displayed in alphanumeric mode in 50% opacity.  
-| Gamepad key         | Mapping                                     |
-|---------------------|---------------------------------------------|
-| **Left joystick**   | Moves the selected keyboard key             |
-| **Directional pad** | Controls the arrow keys for text navigation |
-| **A**               | Simulates the selected key on the keyboard  |
-| **B**               | Backspace                                   |
-| **X**               | Enter                                       |
-| **Y**               | Toggle CapsLock                             |
-| **Left trigger**    | Ctrl+C                                      |
-| **Right trigger**   | Ctrl+V                                      |
-| **Left shoulder**   | Alt                                         |
-| **Right shoulder**  | Tab                                         |
+| Gamepad key         | Mapping                                    |
+|---------------------|--------------------------------------------|
+| **Left joystick**   | Moves the selected keyboard key            |
+| **Directional pad** | Controls the arrow                         |
+| **A**               | Simulates the selected key on the keyboard |
+| **B**               | Backspace                                  |
+| **X**               | Enter                                      |
+| **Y**               | Toggle CapsLock                            |
+| **Left thumb**      | Switch keyboard type (keyboard redirect)   |
+| **Left trigger**    | Ctrl+C                                     |
+| **Right trigger**   | Ctrl+V                                     |
+| **Left shoulder**   | Alt                                        |
+| **Right shoulder**  | Tab                                        |
 > In case of special characters or symbols, the keyboard also presses the necessary keys to achieve the character such as ctrl, alt or shift
 
 > To switch between windows, hold **Left shoulder** and click **Right shoulder** button  

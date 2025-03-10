@@ -27,4 +27,6 @@ abstract class KeyboardInterface {
   void enter(KeyboardEventType eventType);
 
   void toggleCapsLock(KeyboardEventType eventType);
+
+  void redirectNext(KeyboardEventType eventType);
 }

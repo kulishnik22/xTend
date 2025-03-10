@@ -222,6 +222,21 @@ class KeyboardController {
     }
   }
 
+  void redirectNext(KeyboardEventType eventType) {
+    if (eventType != KeyboardEventType.down) {
+      return;
+    }
+    redirect(_next(layout.value.type));
+  }
+
+  KeyboardLayoutType _next(KeyboardLayoutType type) => switch (type) {
+    KeyboardLayoutType.alphabeticNumeric =>
+      KeyboardLayoutType.specialCharacters,
+    KeyboardLayoutType.specialCharacters =>
+      KeyboardLayoutType.alphabeticNumeric,
+    KeyboardLayoutType.functional => throw UnimplementedError(),
+  };
+
   void redirect(KeyboardLayoutType type) {
     KeyboardLayout newLayout = KeyboardLayout.fromType(type);
     layout.value = newLayout;

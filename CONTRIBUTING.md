@@ -23,7 +23,6 @@ Thank you for helping improve xTend!
 
 ## Roadmap
 
-- [] Add more mappings
 - [] Refactor the project to be testable
 - [] Write tests
 - [] Comment the code

@@ -73,10 +73,12 @@ There are two mappings called `mouse` and `keyboard` each corresponding to a map
 - `enter`
 - `capsLock`
 - `clickAtKeyboardCursor` `// keyboard mode specific`
+- `keyboardRedirect` `// keyboard mode specific`
 - `volumeUp`
 - `volumeDown`
 - `shift`
 - `win`
+- `winD`
 - `ctrl`
 - `ctrlC`
 - `ctrlV`

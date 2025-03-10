@@ -1,6 +1,6 @@
 <div align="center">
     <img src="./windows/runner/resources/app_icon.ico" alt="Icon" width="200" height="200">
-    <p id="version">v1.3.1</p>
+    <p id="version">v1.4.0</p>
     <h1>xTend</h1>
     <p>Let's you control your Windows PC using <b>Xbox controller</b></p>
     <p style="font-size:14px;"><b>Minimalistic | Easy to use | Open-source</b></p>
@@ -100,7 +100,7 @@ There are two mappings called `mouse` and `keyboard` each corresponding to a map
 
 ## Installation  
 ### Download the latest build  
-1.  [Download](https://github.com/kulishnik22/xTend/releases/download/v1.3.1/xTend.zip) the archive
+1.  [Download](https://github.com/kulishnik22/xTend/releases/download/v1.4.0/xTend.zip) the archive
 2. Unzip the archive and extract the xTend directory
 3. Place the directory somewhere safe
 4. Run the **xtend.exe** in the directory

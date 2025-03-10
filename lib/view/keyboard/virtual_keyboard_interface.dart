@@ -99,4 +99,9 @@ class VirtualKeyboardInterface extends KeyboardInterface {
   void up(KeyboardEventType eventType) {
     keyboardController.up(eventType);
   }
+
+  @override
+  void redirectNext(KeyboardEventType eventType) {
+    keyboardController.redirectNext(eventType);
+  }
 }

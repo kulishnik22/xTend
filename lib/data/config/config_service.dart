@@ -30,6 +30,7 @@ class FileConfigService implements ConfigService {
     try {
       return Config.fromJson(configJson);
     } on Object catch (cause, stackTrace) {
+      print('$cause\n$stackTrace');
       throw DeserializationException(cause, stackTrace);
     }
   }

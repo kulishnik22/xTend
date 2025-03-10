@@ -216,7 +216,8 @@ class Xtend {
 
   void Function(bool? prev, bool button) _getButtonAction(ButtonAction action) {
     if (_xtendMode != XtendMode.keyboard &&
-        action == ButtonAction.clickAtKeyboardCursor) {
+        (action == ButtonAction.clickAtKeyboardCursor ||
+            action == ButtonAction.keyboardRedirect)) {
       return (prev, button) {};
     }
     if (_xtendMode != XtendMode.mouse &&
@@ -239,10 +240,12 @@ class Xtend {
       ButtonAction.enter => _simulateEnter,
       ButtonAction.capsLock => _simulateCapsLock,
       ButtonAction.clickAtKeyboardCursor => _simulateClickAtCursor,
+      ButtonAction.keyboardRedirect => _simulateKeyboardRedirect,
       ButtonAction.volumeUp => _simulateVolumeUp,
       ButtonAction.volumeDown => _simulateVolumeDown,
       ButtonAction.shift => _simulateShift,
       ButtonAction.win => _simulateWin,
+      ButtonAction.winD => _simulateWinD,
       ButtonAction.ctrl => _simulateCtrl,
       ButtonAction.ctrlC => _simulateCtrlC,
       ButtonAction.ctrlV => _simulateCtrlV,
@@ -412,6 +415,12 @@ class Xtend {
     _mapToKeyboard(prev, button, KeyboardEvent.lWin);
   }
 
+  void _simulateWinD(bool? prev, bool button) {
+    const KeyboardEvent win = KeyboardEvent.lWin;
+    const KeyboardEvent d = KeyboardEvent.d;
+    _mapToKeyCombination(prev, button, win, d);
+  }
+
   void _simulateShift(bool? prev, bool button) {
     _mapToKeyboard(prev, button, KeyboardEvent.shift);
   }
@@ -458,6 +467,10 @@ class Xtend {
 
   void _simulateClickAtCursor(bool? prev, bool button) {
     _mapToControllerAction(prev, button, keyboard.clickAtCursor);
+  }
+
+  void _simulateKeyboardRedirect(bool? prev, bool button) {
+    _mapToControllerAction(prev, button, keyboard.redirectNext);
   }
 
   void _simulateEnter(bool? prev, bool button) {

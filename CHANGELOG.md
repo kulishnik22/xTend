@@ -1,3 +1,10 @@
+# 1.4.0
+
+- Added Win+D mapping 🪟
+- Added keyboard redirect mapping ⌨️
+- Updated default configuration 📈
+- Updated README 📖
+
 # 1.3.1
 
 - Fixed config loading error handling 🚫

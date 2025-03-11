@@ -19,11 +19,15 @@ If you encounter bugs or have suggestions, please open an issue with a clear des
 - Write clean, well-commented code.
 - Follow the project’s existing coding patterns.
 
-Thank you for helping improve xTend!
-
 ## Roadmap
 
 - [] Refactor the project to be testable
 - [] Write tests
 - [] Comment the code
+- [] Add support for multiple controllers
+- [] Add support for more controller types
+- [] Add support for more operating systems
+
+Thank you for helping improve xTend!
+
 

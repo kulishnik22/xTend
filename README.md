@@ -115,7 +115,7 @@ There are two mappings called `mouse` and `keyboard` each corresponding to a map
 1. Git clone the [repository](https://github.com/kulishnik22/xTend.git)
 2. Run `flutter clean` and `flutter pub get`
 3. To build the project run `flutter build windows --release`  
-Release binary along with dependencies will be located in `/build/windows/runner/Release/`  
+Release binary along with dependencies will be located in `/build/windows/x64/runner/Release/`  
 > The location of your build will also be written to the console output  
 
 ___

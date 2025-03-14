@@ -21,13 +21,16 @@ If you encounter bugs or have suggestions, please open an issue with a clear des
 
 ## Roadmap
 
-- [] Refactor the project to be testable
-- [] Write tests
-- [] Comment the code
-- [] Add support for multiple controllers
-- [] Add support for more controller types
-- [] Add support for more operating systems
+- [ ] Refactor the project to be testable
+- [ ] Write tests
+- [ ] Comment the code
+- [ ] Add customizable mouse behavior (linear/exponential + custom speed setting)
+- [ ] Add custom key combinations
+- [ ] Add custom keyboard keys
+- [ ] Persist selected key position when redirecting between keyboards
+- [ ] Add layout, opacity, location and size keyboard customizations
+- [ ] Add support for multiple controllers
+- [ ] Add support for more controller types
+- [ ] Add support for more operating systems
 
 Thank you for helping improve xTend!
-
-

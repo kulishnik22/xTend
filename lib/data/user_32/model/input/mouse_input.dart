@@ -9,6 +9,8 @@ enum MouseEvent {
   leftUp(0x0004),
   rightDown(0x0008),
   rightUp(0x0010),
+  middleDown(0x0020),
+  middleUp(0x0040),
   wheelVertical(0x0800),
   wheelHorizontal(0x01000);
 

@@ -64,6 +64,7 @@ There are two mappings called `mouse` and `keyboard` each corresponding to a map
 ### Button mappings (including triggers)
 - `mouseLeftClick` `// mouse mode specific`
 - `mouseRightClick` `// mouse mode specific`
+- `mouseMiddleClick` `// mouse mode specific`
 - `browserBack`
 - `browserForward`
 - `alt`

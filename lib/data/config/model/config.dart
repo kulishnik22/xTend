@@ -188,6 +188,7 @@ class GamepadMapping extends Equatable {
 enum ButtonAction {
   mouseLeftClick,
   mouseRightClick,
+  mouseMiddleClick,
   browserBack,
   browserForward,
   alt,

@@ -222,12 +222,14 @@ class Xtend {
     }
     if (_xtendMode != XtendMode.mouse &&
         (action == ButtonAction.mouseLeftClick ||
-            action == ButtonAction.mouseRightClick)) {
+            action == ButtonAction.mouseRightClick ||
+            action == ButtonAction.mouseMiddleClick)) {
       return (prev, button) {};
     }
     return switch (action) {
       ButtonAction.mouseLeftClick => _simulateMouseLeftClick,
       ButtonAction.mouseRightClick => _simulateMouseRightClick,
+      ButtonAction.mouseMiddleClick => _simulateMouseMiddleClick,
       ButtonAction.browserBack => _simulateBrowserBack,
       ButtonAction.browserForward => _simulateBrowserForward,
       ButtonAction.alt => _simulateAlt,
@@ -326,6 +328,10 @@ class Xtend {
 
   void _simulateMouseRightClick(bool? prev, bool button) {
     _mapToMouse(prev, button, MouseEvent.rightDown, MouseEvent.rightUp);
+  }
+
+  void _simulateMouseMiddleClick(bool? prev, bool button) {
+    _mapToMouse(prev, button, MouseEvent.middleDown, MouseEvent.middleUp);
   }
 
   void _simulateBrowserBack(bool? prev, bool button) {
